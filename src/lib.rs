@@ -80,3 +80,9 @@ impl Add<f64> for ListAvg {
         self.inner.push(value)
     }
 }
+
+impl<'a> Add<&'a [f64]> for ListAvg {
+    fn add(&mut self, value: &'a [f64]) {
+        self.inner.extend_from_slice(value)
+    }
+}
