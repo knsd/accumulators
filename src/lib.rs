@@ -6,6 +6,8 @@ pub trait Accumulator {
     fn result(&self) -> Self::Output;
 }
 
+// Numeric
+
 struct Summ {
     inner: f64,
 }
@@ -42,6 +44,8 @@ impl Accumulator for SummNone {
         self.inner
     }
 }
+
+// List
 
 struct ListAvg {
     inner: Vec<f64>
