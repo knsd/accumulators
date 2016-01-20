@@ -2,7 +2,7 @@ pub trait Accumulator {
     type Input;
     type Output;
 
-    fn notify(&mut self, value: Self::Input) -> ();
+    fn add(&mut self, value: Self::Input) -> ();
     fn result(&self) -> Self::Output;
 }
 
@@ -16,7 +16,7 @@ impl Accumulator for Summ {
     type Input = f64;
     type Output = f64;
 
-    fn notify(&mut self, value: Self::Input) {
+    fn add(&mut self, value: Self::Input) {
         self.inner = self.inner + value
     }
 
@@ -33,7 +33,7 @@ impl Accumulator for SummNone {
     type Input = f64;
     type Output = Option<f64>;
 
-    fn notify(&mut self, value: Self::Input) {
+    fn add(&mut self, value: Self::Input) {
         self.inner = match self.inner {
             None => Some(value),
             Some(inner) => Some(inner + value),
@@ -53,7 +53,7 @@ impl Accumulator for Last {
     type Input = f64;
     type Output = Option<f64>;
 
-    fn notify(&mut self, value: Self::Input) {
+    fn add(&mut self, value: Self::Input) {
         self.inner = Some(value)
     }
 
@@ -70,7 +70,7 @@ impl Accumulator for Min {
     type Input = f64;
     type Output = Option<f64>;
 
-    fn notify(&mut self, value: Self::Input) {
+    fn add(&mut self, value: Self::Input) {
         match self.inner {
             None => self.inner = Some(value),
             Some(inner) => if inner > value {
@@ -92,7 +92,7 @@ impl Accumulator for Max {
     type Input = f64;
     type Output = Option<f64>;
 
-    fn notify(&mut self, value: Self::Input) {
+    fn add(&mut self, value: Self::Input) {
         match self.inner {
             None => self.inner = Some(value),
             Some(inner) => if inner < value {
@@ -116,7 +116,7 @@ impl Accumulator for ListAvg {
     type Input = f64;
     type Output = Option<f64>;
 
-    fn notify(&mut self, value: Self::Input) {
+    fn add(&mut self, value: Self::Input) {
         self.inner.push(value)
     }
 
