@@ -45,6 +45,23 @@ impl Accumulator for SummNone {
     }
 }
 
+struct Last {
+    inner: Option<f64>,
+}
+
+impl Accumulator for Last {
+    type Input = f64;
+    type Output = Option<f64>;
+
+    fn notify(&mut self, value: Self::Input) {
+        self.inner = Some(value)
+    }
+
+    fn result(&self) -> Self::Output {
+        self.inner
+    }
+}
+
 // List
 
 struct ListAvg {
