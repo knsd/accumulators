@@ -1,7 +1,9 @@
 pub trait Accumulator {
-    type Item;
+    type Input;
+    type Output;
 
-    fn notify(&mut self, value: Self::Item) -> ();
-    fn result(&mut self) -> &Self::Item;
+    fn notify(&mut self, value: &Self::Input) -> ();
+    fn result(&self) -> Self::Output;
+}
 }
 
