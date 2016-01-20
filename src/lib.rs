@@ -62,6 +62,28 @@ impl Accumulator for Last {
     }
 }
 
+struct Min {
+    inner: Option<f64>,
+}
+
+impl Accumulator for Min {
+    type Input = f64;
+    type Output = Option<f64>;
+
+    fn notify(&mut self, value: Self::Input) {
+        match self.inner {
+            None => self.inner = Some(value),
+            Some(inner) => if inner > value {
+                self.inner = Some(value)
+            },
+        }
+    }
+
+    fn result(&self) -> Self::Output {
+        self.inner
+    }
+}
+
 // List
 
 struct ListAvg {
