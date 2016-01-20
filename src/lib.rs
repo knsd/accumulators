@@ -42,3 +42,24 @@ impl Accumulator for SummNone {
         self.inner
     }
 }
+
+struct ListAvg {
+    inner: Vec<f64>
+}
+
+impl Accumulator for ListAvg {
+    type Input = f64;
+    type Output = Option<f64>;
+
+    fn notify(&mut self, value: Self::Input) {
+        self.inner.push(value)
+    }
+
+    fn result(&self) -> Self::Output {
+        if self.inner.is_empty() {
+            return None
+        } else {
+            return Some(self.inner.iter().fold(0.0, |a, b| a + b) / self.inner.len() as f64)
+        }
+    }
+}
