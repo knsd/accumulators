@@ -1,3 +1,5 @@
+use std::collections::{HashMap};
+
 pub trait Accumulator {
     type Input;
     type Output;
@@ -128,4 +130,15 @@ impl Accumulator for ListAvg {
             return Some(self.inner.iter().fold(0.0, |a, b| a + b) / self.inner.len() as f64)
         }
     }
+}
+
+type AccContainer<A> = HashMap<String, A>;
+
+struct Container {
+    summ: AccContainer<Summ>,
+    summ_none: AccContainer<SummNone>,
+    last: AccContainer<Last>,
+    min: AccContainer<Min>,
+    max: AccContainer<Max>,
+    list_avg: AccContainer<ListAvg>,
 }
