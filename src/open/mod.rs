@@ -1,11 +1,8 @@
 use std::collections::{HashMap};
 
 pub trait Accumulator {
-    type Input;
-    type Output;
-
-    fn add(&mut self, value: Self::Input) -> ();
-    fn result(&self) -> Self::Output;
+    fn new() -> Self;
+    fn add(&mut self, value: f64) -> ();
 }
 
 // Numeric
@@ -15,15 +12,12 @@ pub struct Summ {
 }
 
 impl Accumulator for Summ {
-    type Input = f64;
-    type Output = f64;
-
-    fn add(&mut self, value: Self::Input) {
-        self.inner = self.inner + value
+    fn new() -> Self {
+        Summ { inner: 0.0 }
     }
 
-    fn result(&self) -> Self::Output {
-        self.inner
+    fn add(&mut self, value: f64) {
+        self.inner = self.inner + value
     }
 }
 
@@ -32,18 +26,15 @@ struct SummNone {
 }
 
 impl Accumulator for SummNone {
-    type Input = f64;
-    type Output = Option<f64>;
+    fn new() -> Self {
+        SummNone { inner: None }
+    }
 
-    fn add(&mut self, value: Self::Input) {
+    fn add(&mut self, value: f64) {
         self.inner = match self.inner {
             None => Some(value),
             Some(inner) => Some(inner + value),
         }
-    }
-
-    fn result(&self) -> Self::Output {
-        self.inner
     }
 }
 
@@ -52,15 +43,11 @@ struct Last {
 }
 
 impl Accumulator for Last {
-    type Input = f64;
-    type Output = Option<f64>;
-
-    fn add(&mut self, value: Self::Input) {
-        self.inner = Some(value)
+    fn new() -> Self {
+        Last { inner: None }
     }
-
-    fn result(&self) -> Self::Output {
-        self.inner
+    fn add(&mut self, value: f64) {
+        self.inner = Some(value)
     }
 }
 
@@ -69,20 +56,17 @@ struct Min {
 }
 
 impl Accumulator for Min {
-    type Input = f64;
-    type Output = Option<f64>;
+    fn new() -> Self {
+        Min { inner: None }
+    }
 
-    fn add(&mut self, value: Self::Input) {
+    fn add(&mut self, value: f64) {
         match self.inner {
             None => self.inner = Some(value),
             Some(inner) => if inner > value {
                 self.inner = Some(value)
             },
         }
-    }
-
-    fn result(&self) -> Self::Output {
-        self.inner
     }
 }
 
@@ -91,20 +75,17 @@ struct Max {
 }
 
 impl Accumulator for Max {
-    type Input = f64;
-    type Output = Option<f64>;
+    fn new() -> Self {
+        Max { inner: None }
+    }
 
-    fn add(&mut self, value: Self::Input) {
+    fn add(&mut self, value: f64) {
         match self.inner {
             None => self.inner = Some(value),
             Some(inner) => if inner < value {
                 self.inner = Some(value)
             },
         }
-    }
-
-    fn result(&self) -> Self::Output {
-        self.inner
     }
 }
 
