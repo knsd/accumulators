@@ -142,3 +142,18 @@ struct Container {
     max: AccContainer<Max>,
     list_avg: AccContainer<ListAvg>,
 }
+
+impl Container {
+    fn notify_summ(&mut self, name: &str, value: f64) {
+        let maybe_acc = self.summ.get_mut(name);
+        let acc = match maybe_acc {
+            Some(acc) => acc,
+            None => {
+                let acc = Summ { inner: 0.0 };
+                self.summ.insert(name.to_string(), acc);
+                panic!("foo");
+            },
+        };
+        // acc.notify(value);
+    }
+}
