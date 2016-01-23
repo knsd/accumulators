@@ -132,7 +132,7 @@ macro_rules! make_notify {
 
             #[inline]
             fn notify(&mut self, name: &str, value: f64) {
-                let acc = self.$field.entry(name.to_string()).or_insert_with(|| Accumulator::new() );
+                let acc = self.$field.entry(name.to_string()).or_insert_with(|| Accumulator::new() );  // FIXME: excess clone
                 acc.add(value)
             }
         }
