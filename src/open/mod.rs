@@ -159,3 +159,16 @@ make_notify!(Last, last);
 make_notify!(Min, min);
 make_notify!(Max, max);
 make_notify!(Average, average);
+
+impl Container {
+    fn new() -> Self {
+        Container {
+            summ: HashMap::new(),
+            summ_none: HashMap::new(),
+            last: HashMap::new(),
+            min: HashMap::new(),
+            max: HashMap::new(),
+            average: HashMap::new(),
+        }
+    }
+}
