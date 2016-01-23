@@ -89,6 +89,22 @@ impl Accumulator for Max {
     }
 }
 
+struct Average {
+    sum: f64,
+    count: usize,
+}
+
+impl Accumulator for Average {
+    fn new() -> Self {
+        Average { sum: 0.0, count: 0 }
+    }
+
+    fn add(&mut self, value: f64) {
+        self.sum = self.sum + value;
+        self.count = self.count + 1;
+    }
+}
+
 type AccContainer<A> = HashMap<String, A>;
 
 struct Container {
@@ -97,6 +113,7 @@ struct Container {
     last: AccContainer<Last>,
     min: AccContainer<Min>,
     max: AccContainer<Max>,
+    average: AccContainer<Average>,
 }
 
 trait ContainerNotify<Acc> {
@@ -120,3 +137,4 @@ make_notify!(SummNone, summ_none);
 make_notify!(Last, last);
 make_notify!(Min, min);
 make_notify!(Max, max);
+make_notify!(Average, average);
