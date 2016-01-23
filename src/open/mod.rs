@@ -132,8 +132,22 @@ macro_rules! make_notify {
 
             #[inline]
             fn notify(&mut self, name: &str, value: f64) {
-                let acc = self.$field.entry(name.to_string()).or_insert_with(|| Accumulator::new() );  // FIXME: excess clone
-                acc.add(value)
+                let shlould_insert = {
+                    let maybe_acc = self.$field.get_mut(name);   // FIXME: excess double hashing
+                    match maybe_acc {
+                        Some(acc) => {
+                            acc.add(value);
+                            false
+                        },
+                        None => true,
+                    }
+                };
+
+                if shlould_insert {
+                    let mut acc: $acc = Accumulator::new();
+                    acc.add(value);
+                    self.$field.insert(name.to_string(), acc);
+                }
             }
         }
     }
