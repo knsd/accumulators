@@ -16,6 +16,7 @@ impl Accumulator for Summ {
         Summ { inner: 0.0 }
     }
 
+    #[inline]
     fn add(&mut self, value: f64) {
         self.inner = self.inner + value
     }
@@ -30,6 +31,7 @@ impl Accumulator for SummNone {
         SummNone { inner: None }
     }
 
+    #[inline]
     fn add(&mut self, value: f64) {
         self.inner = match self.inner {
             None => Some(value),
@@ -46,6 +48,8 @@ impl Accumulator for Last {
     fn new() -> Self {
         Last { inner: None }
     }
+
+    #[inline]
     fn add(&mut self, value: f64) {
         self.inner = Some(value)
     }
@@ -60,6 +64,7 @@ impl Accumulator for Min {
         Min { inner: None }
     }
 
+    #[inline]
     fn add(&mut self, value: f64) {
         match self.inner {
             None => self.inner = Some(value),
@@ -79,6 +84,7 @@ impl Accumulator for Max {
         Max { inner: None }
     }
 
+    #[inline]
     fn add(&mut self, value: f64) {
         match self.inner {
             None => self.inner = Some(value),
@@ -124,6 +130,7 @@ macro_rules! make_notify {
     ($acc: ty, $field: ident) => {
         impl ContainerNotify<$acc> for Container {
 
+            #[inline]
             fn notify(&mut self, name: &str, value: f64) {
                 let acc = self.$field.entry(name.to_string()).or_insert_with(|| Accumulator::new() );
                 acc.add(value)
