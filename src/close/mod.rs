@@ -1,3 +1,5 @@
+use std::collections::{HashMap};
+
 enum Accumulator {
     Summ(f64),
     SummNone(Option<f64>),
@@ -21,4 +23,8 @@ impl Accumulator {
             }
         }
     }
+}
+
+struct Container {
+    accumulators: HashMap<String, Accumulator>
 }
