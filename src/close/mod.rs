@@ -7,6 +7,7 @@ enum Accumulator {
 }
 
 impl Accumulator {
+    #[inline]
     fn add(&mut self, value: f64) {
         match self {
             &mut Accumulator::Summ(ref mut inner) => {
@@ -29,6 +30,20 @@ impl Accumulator {
             &Accumulator::Summ(ref inner) => Some(*inner),
             &Accumulator::SummNone(ref inner) => *inner,
             &Accumulator::Last(ref inner) => *inner,
+        }
+    }
+
+    fn accumulate(&mut self, other: &mut Accumulator) {
+        match *self {
+            Accumulator::Summ(_) => {
+                other.as_float().map(|value| self.add(value) );
+            },
+            Accumulator::SummNone(_) => {
+                other.as_float().map(|value| self.add(value) );
+            },
+            Accumulator::Last(inner) => {
+                other.as_float().map(|value| self.add(value) );
+            }
         }
     }
 }
