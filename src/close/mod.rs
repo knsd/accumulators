@@ -28,3 +28,34 @@ impl Accumulator {
 struct Container {
     accumulators: HashMap<String, Accumulator>
 }
+
+impl Container {
+
+    #[inline]
+    fn name_to_accumulator(name: &str) -> Option<Accumulator> {
+        None
+    }
+
+    fn notify(&mut self, name: &str, value: f64) {
+        let shlould_insert = {
+            let maybe_acc = self.accumulators.get_mut(name);   // FIXME: excess double hashing
+            match maybe_acc {
+                Some(acc) => {
+                    acc.add(value);
+                    false
+                },
+                None => true,
+            }
+        };
+
+        if shlould_insert {
+            match Self::name_to_accumulator(name) {
+                None => (),
+                Some(mut acc) => {
+                    acc.add(value);
+                    self.accumulators.insert(name.to_string(), acc);
+                }
+            }
+        }
+    }
+}
