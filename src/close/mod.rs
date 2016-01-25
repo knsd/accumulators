@@ -25,6 +25,7 @@ impl Accumulator {
         }
     }
 
+    #[inline]
     fn as_float(&self) -> Option<f64> {
         match self {
             &Accumulator::Summ(ref inner) => Some(*inner),
@@ -33,6 +34,7 @@ impl Accumulator {
         }
     }
 
+    #[inline]
     fn accumulate(&mut self, other: &mut Accumulator) {
         match *self {
             Accumulator::Summ(_) => {
