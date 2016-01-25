@@ -61,6 +61,7 @@ impl Container {
         None
     }
 
+    #[inline]
     fn notify(&mut self, name: &str, value: f64) {
         let shlould_insert = {
             let maybe_acc = self.accumulators.get_mut(name);   // FIXME: excess double hashing
