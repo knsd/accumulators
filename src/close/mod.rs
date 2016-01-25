@@ -23,6 +23,14 @@ impl Accumulator {
             }
         }
     }
+
+    fn as_float(&self) -> Option<f64> {
+        match self {
+            &Accumulator::Summ(ref inner) => Some(*inner),
+            &Accumulator::SummNone(ref inner) => *inner,
+            &Accumulator::Last(ref inner) => *inner,
+        }
+    }
 }
 
 struct Container {
