@@ -34,7 +34,6 @@ impl Hasher for FnvHasher {
 }
 
 pub trait Accumulator {
-    fn new() -> Self;
     fn add(&mut self, value: f64) -> ();
 }
 
@@ -45,9 +44,6 @@ pub struct Summ {
 }
 
 impl Accumulator for Summ {
-    fn new() -> Self {
-        Summ { inner: 0.0 }
-    }
 
     #[inline]
     fn add(&mut self, value: f64) {
@@ -60,9 +56,6 @@ struct SummNone {
 }
 
 impl Accumulator for SummNone {
-    fn new() -> Self {
-        SummNone { inner: None }
-    }
 
     #[inline]
     fn add(&mut self, value: f64) {
@@ -78,9 +71,6 @@ struct Last {
 }
 
 impl Accumulator for Last {
-    fn new() -> Self {
-        Last { inner: None }
-    }
 
     #[inline]
     fn add(&mut self, value: f64) {
@@ -93,9 +83,6 @@ struct Min {
 }
 
 impl Accumulator for Min {
-    fn new() -> Self {
-        Min { inner: None }
-    }
 
     #[inline]
     fn add(&mut self, value: f64) {
@@ -113,9 +100,6 @@ struct Max {
 }
 
 impl Accumulator for Max {
-    fn new() -> Self {
-        Max { inner: None }
-    }
 
     #[inline]
     fn add(&mut self, value: f64) {
@@ -134,9 +118,6 @@ struct Average {
 }
 
 impl Accumulator for Average {
-    fn new() -> Self {
-        Average { sum: 0.0, count: 0 }
-    }
 
     fn add(&mut self, value: f64) {
         self.sum = self.sum + value;
