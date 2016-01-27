@@ -125,64 +125,64 @@ impl Accumulator for Average {
     }
 }
 
-type AccContainer<A> = HashMap<String, A>;
-
-struct Container {
-    summ: AccContainer<Summ>,
-    summ_none: AccContainer<SummNone>,
-    last: AccContainer<Last>,
-    min: AccContainer<Min>,
-    max: AccContainer<Max>,
-    average: AccContainer<Average>,
+trait Container {
+    #[inline]
+    fn add_data(&mut self, data: &HashMap<String, f64>);
 }
 
-trait ContainerNotify<Acc> {
-    fn notify(&mut self, name: &str, value: f64);
+struct WrappedAccumulator {
+    accumulator: Box<Accumulator>,
+    updated_in_last_iteration: bool,
 }
 
-macro_rules! make_notify {
-    ($acc: ty, $field: ident) => {
-        impl ContainerNotify<$acc> for Container {
+impl Accumulator for WrappedAccumulator {
+    #[inline]
+    fn add(&mut self, value: f64) {
+        self.accumulator.add(value);
+        self.updated_in_last_iteration = true;
+    }
+}
 
-            #[inline]
-            fn notify(&mut self, name: &str, value: f64) {
-                let shlould_insert = {
-                    let maybe_acc = self.$field.get_mut(name);   // FIXME: excess double hashing
-                    match maybe_acc {
-                        Some(acc) => {
-                            acc.add(value);
-                            false
-                        },
-                        None => true,
-                    }
-                };
+struct SimpleContainer {
+    accumulators: HashMap<String, WrappedAccumulator, DefaultState<FnvHasher>>,
+}
 
-                if shlould_insert {
-                    let mut acc: $acc = Accumulator::new();
-                    acc.add(value);
-                    self.$field.insert(name.to_string(), acc);
-                }
-            }
+impl SimpleContainer {
+    fn new() -> Self {
+        let fnv = DefaultState::<FnvHasher>::default();
+        SimpleContainer {
+            accumulators: HashMap::with_hash_state(fnv),
         }
     }
 }
 
-make_notify!(Summ, summ);
-make_notify!(SummNone, summ_none);
-make_notify!(Last, last);
-make_notify!(Min, min);
-make_notify!(Max, max);
-make_notify!(Average, average);
+impl Container for SimpleContainer {
 
-impl Container {
-    fn new() -> Self {
-        Container {
-            summ: HashMap::new(),
-            summ_none: HashMap::new(),
-            last: HashMap::new(),
-            min: HashMap::new(),
-            max: HashMap::new(),
-            average: HashMap::new(),
+    #[inline]
+    fn add_data(&mut self, data: &HashMap<String, f64>) {
+        for (name, value) in data {
+            let shlould_insert = {
+                let maybe_acc = self.accumulators.get_mut(name);   // FIXME: excess double hashing
+                match maybe_acc {
+                    Some(acc) => {
+                        acc.add(*value);
+                        false
+                    },
+                    None => true,
+                }
+            };
+
+            if shlould_insert {
+                let acc: Box<Accumulator> = match name.as_bytes()[name.len() - 1] {
+                    b's' => Box::new(Summ {inner: 0.0} ),
+                    b'n' => Box::new(SummNone {inner: None} ),
+                    b'l' => Box::new(Last {inner: None} ),
+                    _ => continue,
+                };
+                let mut wrapped_acc = WrappedAccumulator { accumulator: acc, updated_in_last_iteration: false };
+                wrapped_acc.add(*value);
+                self.accumulators.insert(name.to_string(), wrapped_acc);
+            }
         }
     }
 }
