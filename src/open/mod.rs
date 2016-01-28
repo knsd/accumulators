@@ -151,13 +151,13 @@ impl SimpleContainer {
     }
 
     #[inline]
-    fn add_data(&mut self, data: &HashMap<String, f64>) {
-        for (name, value) in data {
+    fn add_data(&mut self, data: &[(String, f64)]) {
+        for &(ref name, value) in data {
             let shlould_insert = {
                 let maybe_acc = self.accumulators.get_mut(name);   // FIXME: excess double hashing
                 match maybe_acc {
                     Some(acc) => {
-                        acc.add(*value);
+                        acc.add(value);
                         false
                     },
                     None => true,
@@ -172,9 +172,10 @@ impl SimpleContainer {
                     _ => continue,
                 };
                 let mut wrapped_acc = WrappedAccumulator { accumulator: acc, updated_in_last_iteration: false };
-                wrapped_acc.add(*value);
+                wrapped_acc.add(value);
                 self.accumulators.insert(name.to_string(), wrapped_acc);
             }
         }
     }
 }
+
