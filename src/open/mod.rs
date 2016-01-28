@@ -125,11 +125,6 @@ impl Accumulator for Average {
     }
 }
 
-trait Container {
-    #[inline]
-    fn add_data(&mut self, data: &HashMap<String, f64>);
-}
-
 struct WrappedAccumulator {
     accumulator: Box<Accumulator>,
     updated_in_last_iteration: bool,
@@ -154,9 +149,6 @@ impl SimpleContainer {
             accumulators: HashMap::with_hash_state(fnv),
         }
     }
-}
-
-impl Container for SimpleContainer {
 
     #[inline]
     fn add_data(&mut self, data: &HashMap<String, f64>) {
