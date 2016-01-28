@@ -5,6 +5,7 @@ use std::hash::Hasher;
 
 pub trait Accumulator {
     fn add(&mut self, value: f64) -> ();
+    fn mul(&mut self, value: &Accumulator);
 
     fn as_float(&self) -> Option<f64>;
 }
@@ -20,6 +21,11 @@ impl Accumulator for Summ {
     #[inline]
     fn add(&mut self, value: f64) {
         self.inner = self.inner + value
+    }
+
+    #[inline]
+    fn mul(&mut self, value: &Accumulator) {
+        value.as_float().map(|v| self.add(v));
     }
 
     fn as_float(&self) -> Option<f64> {
@@ -41,6 +47,11 @@ impl Accumulator for SummNone {
         }
     }
 
+    #[inline]
+    fn mul(&mut self, value: &Accumulator) {
+        value.as_float().map(|v| self.add(v));
+    }
+
     fn as_float(&self) -> Option<f64> {
         self.inner
     }
@@ -55,6 +66,11 @@ impl Accumulator for Last {
     #[inline]
     fn add(&mut self, value: f64) {
         self.inner = Some(value)
+    }
+
+    #[inline]
+    fn mul(&mut self, value: &Accumulator) {
+        value.as_float().map(|v| self.add(v));
     }
 
     fn as_float(&self) -> Option<f64> {
@@ -78,6 +94,11 @@ impl Accumulator for Min {
         }
     }
 
+    #[inline]
+    fn mul(&mut self, value: &Accumulator) {
+        value.as_float().map(|v| self.add(v));
+    }
+
     fn as_float(&self) -> Option<f64> {
         self.inner
     }
@@ -99,6 +120,11 @@ impl Accumulator for Max {
         }
     }
 
+    #[inline]
+    fn mul(&mut self, value: &Accumulator) {
+        value.as_float().map(|v| self.add(v));
+    }
+
     fn as_float(&self) -> Option<f64> {
         self.inner
     }
@@ -114,6 +140,11 @@ impl Accumulator for Average {
     fn add(&mut self, value: f64) {
         self.sum = self.sum + value;
         self.count = self.count + 1;
+    }
+
+    #[inline]
+    fn mul(&mut self, value: &Accumulator) {
+        value.as_float().map(|v| self.add(v));
     }
 
     fn as_float(&self) -> Option<f64> {
