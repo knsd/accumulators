@@ -51,7 +51,7 @@ impl Accumulator for Summ {
     }
 }
 
-struct SummNone {
+pub struct SummNone {
     inner: Option<f64>,
 }
 
@@ -66,7 +66,7 @@ impl Accumulator for SummNone {
     }
 }
 
-struct Last {
+pub struct Last {
     inner: Option<f64>,
 }
 
@@ -78,7 +78,7 @@ impl Accumulator for Last {
     }
 }
 
-struct Min {
+pub struct Min {
     inner: Option<f64>,
 }
 
@@ -95,7 +95,7 @@ impl Accumulator for Min {
     }
 }
 
-struct Max {
+pub struct Max {
     inner: Option<f64>,
 }
 
@@ -112,7 +112,7 @@ impl Accumulator for Max {
     }
 }
 
-struct Average {
+pub struct Average {
     sum: f64,
     count: usize,
 }
@@ -138,7 +138,7 @@ impl Accumulator for WrappedAccumulator {
     }
 }
 
-struct SimpleContainer {
+pub struct SimpleContainer {
     accumulators: HashMap<String, WrappedAccumulator, DefaultState<FnvHasher>>,
 }
 
@@ -178,4 +178,3 @@ impl SimpleContainer {
         }
     }
 }
-
