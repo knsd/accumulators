@@ -3,44 +3,16 @@ use std::collections::hash_state::DefaultState;
 use std::default::Default;
 use std::hash::Hasher;
 
-pub struct FnvHasher(u64);
-
-impl Default for FnvHasher {
-
-    #[inline]
-    fn default() -> FnvHasher {
-        FnvHasher(0xcbf29ce484222325)
-    }
-}
-
-impl Hasher for FnvHasher {
-
-    #[inline]
-    fn finish(&self) -> u64 {
-        self.0
-    }
-
-    #[inline]
-    fn write(&mut self, bytes: &[u8]) {
-        let FnvHasher(mut hash) = *self;
-
-        for byte in bytes.iter() {
-            hash = hash ^ (*byte as u64);
-            hash = hash.wrapping_mul(0x100000001b3);
-        }
-
-        *self = FnvHasher(hash);
-    }
-}
-
 pub trait Accumulator {
     fn add(&mut self, value: f64) -> ();
+
+    fn as_float(&self) -> Option<f64>;
 }
 
 // Numeric
 
 pub struct Summ {
-    inner: f64,
+    pub inner: f64,
 }
 
 impl Accumulator for Summ {
@@ -49,10 +21,14 @@ impl Accumulator for Summ {
     fn add(&mut self, value: f64) {
         self.inner = self.inner + value
     }
+
+    fn as_float(&self) -> Option<f64> {
+        Some(self.inner)
+    }
 }
 
 pub struct SummNone {
-    inner: Option<f64>,
+    pub inner: Option<f64>,
 }
 
 impl Accumulator for SummNone {
@@ -64,10 +40,14 @@ impl Accumulator for SummNone {
             Some(inner) => Some(inner + value),
         }
     }
+
+    fn as_float(&self) -> Option<f64> {
+        self.inner
+    }
 }
 
 pub struct Last {
-    inner: Option<f64>,
+    pub inner: Option<f64>,
 }
 
 impl Accumulator for Last {
@@ -76,10 +56,14 @@ impl Accumulator for Last {
     fn add(&mut self, value: f64) {
         self.inner = Some(value)
     }
+
+    fn as_float(&self) -> Option<f64> {
+        self.inner
+    }
 }
 
 pub struct Min {
-    inner: Option<f64>,
+    pub inner: Option<f64>,
 }
 
 impl Accumulator for Min {
@@ -93,10 +77,14 @@ impl Accumulator for Min {
             },
         }
     }
+
+    fn as_float(&self) -> Option<f64> {
+        self.inner
+    }
 }
 
 pub struct Max {
-    inner: Option<f64>,
+    pub inner: Option<f64>,
 }
 
 impl Accumulator for Max {
@@ -109,6 +97,10 @@ impl Accumulator for Max {
                 self.inner = Some(value)
             },
         }
+    }
+
+    fn as_float(&self) -> Option<f64> {
+        self.inner
     }
 }
 
@@ -123,58 +115,13 @@ impl Accumulator for Average {
         self.sum = self.sum + value;
         self.count = self.count + 1;
     }
-}
 
-struct WrappedAccumulator {
-    accumulator: Box<Accumulator>,
-    updated_in_last_iteration: bool,
-}
-
-impl Accumulator for WrappedAccumulator {
-    #[inline]
-    fn add(&mut self, value: f64) {
-        self.accumulator.add(value);
-        self.updated_in_last_iteration = true;
-    }
-}
-
-pub struct SimpleContainer {
-    accumulators: HashMap<String, WrappedAccumulator, DefaultState<FnvHasher>>,
-}
-
-impl SimpleContainer {
-    fn new() -> Self {
-        let fnv = DefaultState::<FnvHasher>::default();
-        SimpleContainer {
-            accumulators: HashMap::with_hash_state(fnv),
+    fn as_float(&self) -> Option<f64> {
+        if self.count == 0 {
+            None
+        } else {
+            Some(self.sum / self.count as f64)
         }
-    }
 
-    #[inline]
-    fn add_data(&mut self, data: &[(String, f64)]) {
-        for &(ref name, value) in data {
-            let shlould_insert = {
-                let maybe_acc = self.accumulators.get_mut(name);   // FIXME: excess double hashing
-                match maybe_acc {
-                    Some(acc) => {
-                        acc.add(value);
-                        false
-                    },
-                    None => true,
-                }
-            };
-
-            if shlould_insert {
-                let acc: Box<Accumulator> = match name.as_bytes()[name.len() - 1] {
-                    b's' => Box::new(Summ {inner: 0.0} ),
-                    b'n' => Box::new(SummNone {inner: None} ),
-                    b'l' => Box::new(Last {inner: None} ),
-                    _ => continue,
-                };
-                let mut wrapped_acc = WrappedAccumulator { accumulator: acc, updated_in_last_iteration: false };
-                wrapped_acc.add(value);
-                self.accumulators.insert(name.to_string(), wrapped_acc);
-            }
-        }
     }
 }
