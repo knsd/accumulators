@@ -1,8 +1,3 @@
-use std::collections::{HashMap};
-use std::collections::hash_state::DefaultState;
-use std::default::Default;
-use std::hash::Hasher;
-
 pub trait Accumulator {
     fn add(&mut self, value: f64) -> ();
     fn mul(&mut self, value: &Accumulator);
@@ -28,6 +23,7 @@ impl Accumulator for Summ {
         value.as_float().map(|v| self.add(v));
     }
 
+    #[inline]
     fn as_float(&self) -> Option<f64> {
         Some(self.inner)
     }
@@ -52,6 +48,7 @@ impl Accumulator for SummNone {
         value.as_float().map(|v| self.add(v));
     }
 
+    #[inline]
     fn as_float(&self) -> Option<f64> {
         self.inner
     }
@@ -73,6 +70,7 @@ impl Accumulator for Last {
         value.as_float().map(|v| self.add(v));
     }
 
+    #[inline]
     fn as_float(&self) -> Option<f64> {
         self.inner
     }
@@ -99,6 +97,7 @@ impl Accumulator for Min {
         value.as_float().map(|v| self.add(v));
     }
 
+    #[inline]
     fn as_float(&self) -> Option<f64> {
         self.inner
     }
@@ -125,6 +124,7 @@ impl Accumulator for Max {
         value.as_float().map(|v| self.add(v));
     }
 
+    #[inline]
     fn as_float(&self) -> Option<f64> {
         self.inner
     }
@@ -137,6 +137,7 @@ pub struct Average {
 
 impl Accumulator for Average {
 
+    #[inline]
     fn add(&mut self, value: f64) {
         self.sum = self.sum + value;
         self.count = self.count + 1;
@@ -147,12 +148,12 @@ impl Accumulator for Average {
         value.as_float().map(|v| self.add(v));
     }
 
+    #[inline]
     fn as_float(&self) -> Option<f64> {
         if self.count == 0 {
             None
         } else {
             Some(self.sum / self.count as f64)
         }
-
     }
 }
